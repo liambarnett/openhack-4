@@ -11,6 +11,9 @@
 </head>
 <body style="margin: 40px">
     teams
+    <ul id="myUl">
+
+    </ul>
 
     <script type="text/javascript">
         var teamsContext = null;
@@ -32,8 +35,13 @@
             dataType: "json",
             success: function (data, status, jqXHR) {
 
-                alert("success");// write success in " "
-                console.log(data);
+                $.each(data, function (i, item) {
+
+                    items.push('<li>Team: ' + item.name + '; Score' + item.score + '</li>');
+
+                });
+
+                $('#myUl').append(items.join(''));
             },
 
             error: function (jqXHR, status) {
