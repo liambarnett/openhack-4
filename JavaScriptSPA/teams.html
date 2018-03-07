@@ -26,7 +26,7 @@
         $.ajax({
             type: "POST",
             url: "https://msopenhackeu.azurewebsites.net/api/trivia/leaderboard/team",
-            data: JSON.stringify(teamsContext),// now data come in this function
+            data: JSON.stringify({ contex: teamsContext }),// now data come in this function
             contentType: "application/json; charset=utf-8",
             crossDomain: true,
             dataType: "json",
