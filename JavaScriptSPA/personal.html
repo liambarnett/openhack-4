@@ -30,44 +30,46 @@
 </head>
 
 <body>
-    <p>
-        This sample shows the basics of an authentication/authorization flow in a Microsoft Teams tab.
-    </p>
-    <p>
-        Click on the "Login" button below to login to Azure AD, and grant the sample app access to your profile information. The
-        app will fetch your profile using Microsoft Graph, and display information about you below.
-    </p>
+    <div id="loginView">
+        <p>
+            This sample shows the basics of an authentication/authorization flow in a Microsoft Teams tab.
+        </p>
+        <p>
+            Click on the "Login" button below to login to Azure AD, and grant the sample app access to your profile information. The
+            app will fetch your profile using Microsoft Graph, and display information about you below.
+        </p>
 
-    <!-- Login button -->
-    <button onclick="login()">Login to Azure AD</button>
+        <!-- Login button -->
+        <button onclick="login()">Login to Azure AD</button>
 
-    <!-- Result -->
-    <p>
-        <div id="divError" style="display: none"></div>
-        <div id="divProfile" style="display: none">
-            <div>
-                <b>Name:</b>
-                <span id="profileDisplayName" />
+        <!-- Result -->
+        <p>
+            <div id="divError" style="display: none"></div>
+            <div id="divProfile" style="display: none">
+                <div>
+                    <b>Name:</b>
+                    <span id="profileDisplayName" />
+                </div>
+                <div>
+                    <b>Job title:</b>
+                    <span id="profileJobTitle" />
+                </div>
+                <div>
+                    <b>E-mail:</b>
+                    <span id="profileMail" />
+                </div>
+                <div>
+                    <b>UPN:</b>
+                    <span id="profileUpn" />
+                </div>
+                <div>
+                    <b>Object id:</b>
+                    <span id="profileObjectId" />
+                </div>
             </div>
-            <div>
-                <b>Job title:</b>
-                <span id="profileJobTitle" />
-            </div>
-            <div>
-                <b>E-mail:</b>
-                <span id="profileMail" />
-            </div>
-            <div>
-                <b>UPN:</b>
-                <span id="profileUpn" />
-            </div>
-            <div>
-                <b>Object id:</b>
-                <span id="profileObjectId" />
-            </div>
-        </div>
-    </p>
-    <ul></ul>
+        </p>
+    </div>
+    <ul id="myUl"></ul>
     <script src="https://code.jquery.com/jquery-3.1.1.js" integrity="sha384-VC7EHu0lDzZyFfmjTPJq+DFyIn8TUGAJbEtpXquazFVr00Q/OOx//RjiZ9yU9+9m"
         crossorigin="anonymous"></script>
     <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js" integrity="sha384-SNENyRfvDvybst1u0LawETYF6L5yMx5Ya1dIqWoG4UDTZ/5UAMB15h37ktdBbyFh"
@@ -90,8 +92,9 @@
                 successCallback: function (result) {
                     // simple-end returns the Graph access token in result
                     console.log(result);
+                    $("#loginView").hide();
                     getUserProfile(result.accessToken);
-                    getUserLeaderboard();
+                    getUserLeaderboard(result.accessToken);
                 },
                 failureCallback: function (reason) {
                     console.log("Login failed: " + reason);
@@ -105,7 +108,55 @@
             });
         }
 
-        function getUserLeaderboard() {
+        function hexToBase64(str) {
+            return btoa(String.fromCharCode.apply(null, str.replace(/\r|\n/g, "").replace(/([\da-fA-F]{2}) ?/g, "0x$1 ").replace(/ +$/, "").split(" ")));
+        }
+
+        function getUserLeaderboard(accessToken) {
+
+            // use this transport for "binary" data type
+            $.ajaxTransport("+binary", function (options, originalOptions, jqXHR) {
+                // check for conditions and support for blob / arraybuffer response type
+                if (window.FormData && ((options.dataType && (options.dataType == 'binary')) || (options.data && ((window.ArrayBuffer && options.data instanceof ArrayBuffer) || (window.Blob && options.data instanceof Blob))))) {
+                    return {
+                        // create new XMLHttpRequest
+                        send: function (headers, callback) {
+                            // setup all variables
+                            var xhr = new XMLHttpRequest(),
+                                url = options.url,
+                                type = options.type,
+                                async = options.async || true,
+                                // blob or arraybuffer. Default is blob
+                                dataType = options.responseType || "blob",
+                                data = options.data || null,
+                                username = options.username || null,
+                                password = options.password || null;
+
+                            xhr.addEventListener('load', function () {
+                                var data = {};
+                                data[options.dataType] = xhr.response;
+                                // make callback and send data
+                                callback(xhr.status, xhr.statusText, data, xhr.getAllResponseHeaders());
+                            });
+
+                            xhr.open(type, url, async, username, password);
+
+                            // setup custom headers
+                            for (var i in headers) {
+                                xhr.setRequestHeader(i, headers[i]);
+                            }
+
+                            xhr.responseType = dataType;
+                            xhr.send(data);
+                        },
+                        abort: function () {
+                            jqXHR.abort();
+                        }
+                    };
+                }
+            });
+
+            var teamsContext = null;
             microsoftTeams.getContext(function (context) {
                 teamsContext = context;
                 console.log(teamsContext);
@@ -126,11 +177,43 @@
                     var items = [];
                     $.each(data, function (i, item) {
 
-                        items.push('<li>Team: ' + item.name + '; Score' + item.score + '</li>');
+                        items.push('<li > User: ' + item.name + '; Score ' + item.score + '<img width="100" height="100"  id=' + item.id +'></img> </li > ');
+
+                        
 
                     });
 
                     $('#myUl').append(items.join(''));
+
+                    $.each(data, function (i, item) {
+                        console.log(item);
+                        $.ajax({
+                            url: "https://graph.microsoft.com/v1.0/users/" + item.id+"/photo/$value",
+                            beforeSend: function (request) {
+                                request.setRequestHeader("Authorization", "Bearer " + accessToken);
+                            },
+                            dataType: "binary",
+                            processData: false,
+                            success: function (profile) {
+
+                                const imageUrl = URL.createObjectURL(profile);
+                                const img = document.getElementById(item.id);
+                                img.addEventListener('load', () => URL.revokeObjectURL(imageUrl));
+                                document.getElementById(item.id).src = imageUrl;
+
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                console.log("textStatus: " + textStatus + ", errorThrown:" + errorThrown);
+                                $("#divError").text(errorThrown).css({
+                                    display: ""
+                                });
+                                $("#divProfile").css({
+                                    display: "none"
+                                });
+                            }
+                        });
+                    })
+                  
                 },
 
                 error: function (jqXHR, status) {
@@ -140,6 +223,7 @@
                 }
             });
         }
+
         // Get the user's profile information from Microsoft Graph
         function getUserProfile(accessToken) {
             $.ajax({
