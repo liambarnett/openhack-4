@@ -3,9 +3,49 @@
 <head>
     <!-- bootstrap reference used for styling the page -->
     <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-    <title>JavaScript SPA Guided Setup</title>
+    <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+            crossorigin="anonymous"></script>
+    <title>Team</title>
 </head>
 <body style="margin: 40px">
-  teams
+    teams
+
+    <script type="text/javascript">
+        var teamsContext = null;
+
+        microsoftTeams.initialize();
+        microsoftTeams.getContext(function (context) {
+            teamsContext = context;
+            console.log(teamsContext);
+        }); 
+
+        console.log(teamsContext);
+
+        $.ajax({
+            type: "POST",
+            url: "https://msopenhackeu.azurewebsites.net/api/trivia/leaderboard/team",
+            data: JSON.stringify(teamsContext),// now data come in this function
+            contentType: "application/json; charset=utf-8",
+            crossDomain: true,
+            dataType: "json",
+            success: function (data, status, jqXHR) {
+
+                alert("success");// write success in " "
+                console.log(data);
+            },
+
+            error: function (jqXHR, status) {
+                // error handler
+                console.log(jqXHR);
+                alert('fail' + status.code);
+            }
+        });
+
+    </script>
+
 </body>
+
+
 </html>
