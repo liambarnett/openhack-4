@@ -34,7 +34,7 @@
             crossDomain: true,
             dataType: "json",
             success: function (data, status, jqXHR) {
-
+                var items = [];
                 $.each(data, function (i, item) {
 
                     items.push('<li>Team: ' + item.name + '; Score' + item.score + '</li>');
