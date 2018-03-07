@@ -15,21 +15,21 @@ microsoftTeams.initialize();
 microsoftTeams.settings.registerOnSaveHandler(function(saveEvent){
 
     var radios = document.getElementsByName("appType");
-    if (radios[0].checked) {
+    if (radios[1].checked) {
        microsoftTeams.settings.setSettings({
-         entityId: "bing",
-         contentUrl: "https://www.bing.com/maps/embed",
-         suggestedDisplayName: "Bing Map",
-         websiteUrl: "https://www.bing.com/maps",
-         removeUrl: "https://teams-get-started-sample.azurewebsites.net/tabremove.html",
+           entityId: "e7f6e2b8-37d7-4b68-a610-4d77af525862",
+         contentUrl: "https://hack005.ngrok.io/teams.html",
+         suggestedDisplayName: "C4 Team Tab",
+         websiteUrl: "",
+         removeUrl: "",
       });
     } else {
        microsoftTeams.settings.setSettings({
-         entityId: "google",
-         contentUrl: "https://www.google.com/maps/embed",
-         suggestedDisplayName: "Google Map",
-         websiteUrl: "https://www.google.com/maps",
-         removeUrl: "https://teams-get-started-sample.azurewebsites.net/tabremove.html",
+           entityId: "e7f6e2b8-37d7-4b68-a610-4d77af525863",
+           contentUrl: "https://hack005.ngrok.io/personal.html",
+         suggestedDisplayName: "C4 Personal Tab",
+         websiteUrl: "",
+         removeUrl: "",
       });
     }
 

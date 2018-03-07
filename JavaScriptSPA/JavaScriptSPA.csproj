@@ -69,6 +69,8 @@
   <ItemGroup>
     <Content Include="app.js" />
     <Content Include="config.html" />
+    <Content Include="teams.html" />
+    <Content Include="personal.html" />
     <Content Include="index.html" />
     <Content Include="msalconfig.js" />
   </ItemGroup>
