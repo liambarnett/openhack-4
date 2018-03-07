@@ -2,7 +2,7 @@
 var graphApiEndpoint = "https://graph.microsoft.com/v1.0/me";
 
 // Graph API scope used to obtain the access token to read user profile
-var graphAPIScopes = ["https://graph.microsoft.com/user.read"];
+var graphAPIScopes = ["https://hack005.ngrok.io/personal.html"];
 
 // Initialize application
 var userAgentApplication = new Msal.UserAgentApplication(msalconfig.clientID, null, loginCallback, {
